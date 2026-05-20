@@ -1,0 +1,251 @@
+    <div id="settings-overlay" class="hidden">
+        <div id="settings-modal">
+
+            <div id="settings-header">
+                <div id="settings-header-left">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>НАСТРОЙКИ</span>
+                </div>
+                <button id="settings-close-x" title="Закрыть без сохранения"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="settings-tabs">
+                <button class="stab active" data-tab="audio"><i class="fas fa-volume-up"></i><span>АУДИО</span></button>
+                <button class="stab" data-tab="gameplay"><i class="fas fa-skull"></i><span>ИГРА</span></button>
+                <button class="stab" data-tab="graphics"><i class="fas fa-tv"></i><span>ГРАФИКА</span></button>
+                <button class="stab" data-tab="controls"><i class="fas fa-keyboard"></i><span>УПРАВЛЕНИЕ</span></button>
+                <button class="stab" data-tab="about"><i class="fas fa-info-circle"></i><span>О ИГРЕ</span></button>
+            </div>
+
+            <div id="settings-body">
+
+                <!-- АУДИО -->
+                <div class="stab-panel active" id="stab-audio">
+                    <div class="s-section-label">Мастер громкость</div>
+                    <div class="s-master-vol">
+                        <span class="svol-icon" id="vol-icon">🔊</span>
+                        <input type="range" id="volume-slider" class="s-slider s-slider-master" min="0" max="100" value="70">
+                        <span class="sval" id="volume-value">70%</span>
+                    </div>
+
+                    <div class="s-section-label">Каналы</div>
+                    <div class="s-channels">
+                        <div class="s-channel">
+                            <span class="s-channel-icon">👻</span>
+                            <span class="s-channel-name">Атмосфера</span>
+                            <input type="range" id="vol-atmosphere" class="s-slider s-slider-ch" min="0" max="100" value="50">
+                            <span class="sval s-channel-val" id="vol-atmosphere-val">50%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">🎵</span>
+                            <span class="s-channel-name">Музыка меню</span>
+                            <input type="range" id="vol-menu" class="s-slider s-slider-ch" min="0" max="100" value="55">
+                            <span class="sval s-channel-val" id="vol-menu-val">55%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">⚡</span>
+                            <span class="s-channel-name">Эффекты (SFX)</span>
+                            <input type="range" id="vol-sfx" class="s-slider s-slider-ch" min="0" max="100" value="100">
+                            <span class="sval s-channel-val" id="vol-sfx-val">100%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">💀</span>
+                            <span class="s-channel-name">Джамп-скер</span>
+                            <input type="range" id="vol-jumpscare" class="s-slider s-slider-ch" min="0" max="100" value="100">
+                            <span class="sval s-channel-val" id="vol-jumpscare-val">100%</span>
+                        </div>
+                    </div>
+
+                    <div class="s-section-label">Параметры</div>
+                    <div class="s-toggles-grid">
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-phone"></i><span>Тел. звонок</span><em>Ночь 1</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-phonecall" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-paw"></i><span>Пение Фокси</span><em>Пираты</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-foxy-song" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-utensils"></i><span>Шум кухни</span><em>Фон</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-kitchen-noise" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-volume-mute"></i><span>Полный мут</span></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-mute"><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ИГРА -->
+                <div class="stab-panel" id="stab-gameplay">
+                    <div class="s-section-label">Сложность AI</div>
+                    <div class="sdiff-grid">
+                        <label class="sdiff-card" data-val="easy">
+                            <input type="radio" name="difficulty" value="easy">
+                            <div class="sdiff-icon">🟢</div>
+                            <div class="sdiff-name">ЛЁГКИЙ</div>
+                            <div class="sdiff-desc">AI ×0.5</div>
+                        </label>
+                        <label class="sdiff-card" data-val="normal">
+                            <input type="radio" name="difficulty" value="normal" checked>
+                            <div class="sdiff-icon">🟡</div>
+                            <div class="sdiff-name">НОРМАЛЬНЫЙ</div>
+                            <div class="sdiff-desc">AI ×1.0</div>
+                        </label>
+                        <label class="sdiff-card" data-val="hard">
+                            <input type="radio" name="difficulty" value="hard">
+                            <div class="sdiff-icon">🔴</div>
+                            <div class="sdiff-name">ХАРДКОР</div>
+                            <div class="sdiff-desc">AI ×1.8</div>
+                        </label>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:14px">Визуальные эффекты</div>
+                    <div class="s-toggles-grid">
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-grip-lines"></i><span>Скан-линии</span></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-scanlines" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-expand-arrows-alt"></i><span>Тряска экрана</span></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-screenshake" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ГРАФИКА -->
+                <div class="stab-panel" id="stab-graphics">
+                    <div class="s-section-label">Пресет качества</div>
+                    <div class="gfx-preset-grid">
+                        <label class="gfx-preset-card" data-val="low">
+                            <input type="radio" name="gfx-quality" value="low">
+                            <div class="gfx-preset-icon">🟤</div>
+                            <div class="gfx-preset-name">НИЗКОЕ</div>
+                            <div class="gfx-preset-desc">Без эффектов. Макс. FPS</div>
+                        </label>
+                        <label class="gfx-preset-card" data-val="medium">
+                            <input type="radio" name="gfx-quality" value="medium" checked>
+                            <div class="gfx-preset-icon">🟡</div>
+                            <div class="gfx-preset-name">СРЕДНЕЕ</div>
+                            <div class="gfx-preset-desc">Баланс. Рекомендуется</div>
+                        </label>
+                        <label class="gfx-preset-card" data-val="high">
+                            <input type="radio" name="gfx-quality" value="high">
+                            <div class="gfx-preset-icon">🟢</div>
+                            <div class="gfx-preset-name">ВЫСОКОЕ</div>
+                            <div class="gfx-preset-desc">Все эффекты включены</div>
+                        </label>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:14px">Эффекты</div>
+                    <div class="s-toggles-grid">
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-circle-notch"></i><span>Виньетирование</span><em>Атмосфера</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-vignette" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-adjust"></i><span>Хром. аберрация</span><em>Хоррор</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-chromatic" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-film"></i><span>Зернистость</span><em>Ретро</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-grain" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-moon"></i><span>Дин. тени</span><em>Только HIGH</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-shadows"><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:14px">Изображение</div>
+                    <div class="s-channels">
+                        <div class="s-channel">
+                            <span class="s-channel-icon">☀️</span>
+                            <span class="s-channel-name">Яркость</span>
+                            <input type="range" id="brightness-slider" class="s-slider s-slider-ch" min="60" max="140" value="100">
+                            <span class="sval s-channel-val" id="brightness-value">100%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">🌗</span>
+                            <span class="s-channel-name">Контрастность</span>
+                            <input type="range" id="contrast-slider" class="s-slider s-slider-ch" min="60" max="150" value="110">
+                            <span class="sval s-channel-val" id="contrast-value">110%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- УПРАВЛЕНИЕ -->
+                <div class="stab-panel" id="stab-controls">
+                    <div class="s-section-label">Основные действия</div>
+                    <div class="ctrl-grid">
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-video"></i><span class="ctrl-name">Камеры</span><span class="ctrl-desc">Открыть / закрыть</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="camera">C</kbd><button class="ctrl-rebind-btn" data-action="camera"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-door-closed"></i><span class="ctrl-name">Левая дверь</span><span class="ctrl-desc">Закрыть / открыть</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="leftDoor">A</kbd><button class="ctrl-rebind-btn" data-action="leftDoor"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-door-closed"></i><span class="ctrl-name">Правая дверь</span><span class="ctrl-desc">Закрыть / открыть</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="rightDoor">D</kbd><button class="ctrl-rebind-btn" data-action="rightDoor"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-lightbulb"></i><span class="ctrl-name">Левый фонарь</span><span class="ctrl-desc">Бонни (слева)</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="leftFlash">F</kbd><button class="ctrl-rebind-btn" data-action="leftFlash"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-lightbulb"></i><span class="ctrl-name">Правый фонарь</span><span class="ctrl-desc">Чика / Фредди (справа)</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="rightFlash">G</kbd><button class="ctrl-rebind-btn" data-action="rightFlash"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-fixed"><div class="ctrl-info"><i class="fas fa-times"></i><span class="ctrl-name">Закрыть / Пропустить</span><span class="ctrl-desc">Камеры · Телефон</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-wide">ESC / Enter</kbd></div></div>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:12px">Быстрый выбор камер</div>
+                    <div class="ctrl-grid ctrl-grid-cams">
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 1A</span><span class="ctrl-desc">Сцена</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_stage">1</kbd><button class="ctrl-rebind-btn" data-action="cam_stage"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 1B</span><span class="ctrl-desc">West Hall</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_west-hall">2</kbd><button class="ctrl-rebind-btn" data-action="cam_west-hall"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 1C</span><span class="ctrl-desc">Туалеты</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_bathroom">3</kbd><button class="ctrl-rebind-btn" data-action="cam_bathroom"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 2A</span><span class="ctrl-desc">Зал</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_dining">4</kbd><button class="ctrl-rebind-btn" data-action="cam_dining"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 2B</span><span class="ctrl-desc">Склад</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_supply">5</kbd><button class="ctrl-rebind-btn" data-action="cam_supply"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 2C</span><span class="ctrl-desc">Кухня</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_kitchen">6</kbd><button class="ctrl-rebind-btn" data-action="cam_kitchen"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 3A</span><span class="ctrl-desc">П. Бухта</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_parts">7</kbd><button class="ctrl-rebind-btn" data-action="cam_parts"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 3B</span><span class="ctrl-desc">East Hall</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_east-hall">8</kbd><button class="ctrl-rebind-btn" data-action="cam_east-hall"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 4A</span><span class="ctrl-desc">Коридор</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_hall">9</kbd><button class="ctrl-rebind-btn" data-action="cam_hall"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 3C</span><span class="ctrl-desc">Закулисье</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_backstage">0</kbd><button class="ctrl-rebind-btn" data-action="cam_backstage"><i class="fas fa-pen"></i></button></div></div>
+                    </div>
+                    <button class="ctrl-reset-btn" id="ctrl-reset-btn"><i class="fas fa-undo"></i> Сбросить привязки</button>
+
+                    <!-- Оверлей перехвата -->
+                    <div id="ctrl-capture-overlay" class="hidden">
+                        <div id="ctrl-capture-box">
+                            <div id="ctrl-capture-icon"><i class="fas fa-keyboard"></i></div>
+                            <div id="ctrl-capture-title">НАЖМИТЕ КЛАВИШУ</div>
+                            <div id="ctrl-capture-sub">для: <span id="ctrl-capture-action-name"></span></div>
+                            <div id="ctrl-capture-hint">ESC — отмена</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- О ИГРЕ -->
+                <div class="stab-panel" id="stab-about">
+                    <div class="about-hero">
+                        <div class="about-logo-text">FIVE NIGHTS AT FREDDY'S</div>
+                        <div class="about-tagline">Ночная смена. Выживи до 6 утра.</div>
+                    </div>
+                    <div class="about-desc">
+                        <p>Вы устроились ночным охранником в пиццерию «Freddy Fazbear's Pizza». После полуночи аниматроники оживают. Следите за камерами, закрывайте двери, экономьте энергию — продержитесь до 6 утра.</p>
+                        <p>Семь ночей. Четыре аниматроника. Один выживший.</p>
+                    </div>
+                    <div class="about-divider"></div>
+                    <div class="about-dev-block">
+                        <div class="about-dev-avatar">Р</div>
+                        <div class="about-dev-info">
+                            <div class="about-dev-label">РАЗРАБОТЧИК</div>
+                            <div class="about-dev-name">Романуша Д.С.</div>
+                            <div class="about-dev-role">Дизайн · Программирование · Геймдизайн</div>
+                        </div>
+                    </div>
+                    <div class="about-divider"></div>
+                    <div class="about-credits">
+                        <div class="about-credits-title">БЛАГОДАРНОСТИ</div>
+                        <div class="about-credits-list"><span>Scott Cawthon</span> — оригинальная серия FNAF</div>
+                    </div>
+                    <div class="about-version">v1.0 · 2026</div>
+                </div>
+
+            </div><!-- /settings-body -->
+
+            <div id="settings-footer">
+                <button class="s-btn s-btn-cancel" id="settings-reset"><i class="fas fa-undo"></i> СБРОС</button>
+                <button class="s-btn s-btn-save" id="settings-close"><i class="fas fa-check"></i> СОХРАНИТЬ</button>
+            </div>
+
+        </div>
+    </div>

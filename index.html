@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Five Nights at Freddy's - Security Office</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Scale game container to fit any screen */
+        #game-container {
+            transform-origin: top left;
+        }
+    </style>
+    <script>
+        function isMobile() {
+            return window.innerWidth <= 900 || ('ontouchstart' in window && window.innerWidth < 1200);
+        }
+        function scaleGame() {
+            const container = document.getElementById('game-container');
+            if (!container || container.classList.contains('hidden')) return;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const portrait = vh > vw;
+            let scale, offsetX, offsetY;
+            if (portrait) {
+                // Portrait: fit width, crop height
+                scale = vw / 1920;
+                offsetX = 0;
+                offsetY = (vh - 1080 * scale) / 2;
+            } else {
+                scale = Math.min(vw / 1920, vh / 1080);
+                offsetX = (vw - 1920 * scale) / 2;
+                offsetY = (vh - 1080 * scale) / 2;
+            }
+            container.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+            container.style.position = 'fixed';
+            container.style.top = '0';
+            container.style.left = '0';
+            container.style.margin = '0';
+            // Tag mobile for CSS
+            document.body.classList.toggle('mobile', isMobile());
+            document.body.classList.toggle('portrait', portrait);
+        }
+        window.addEventListener('resize', scaleGame);
+        window.addEventListener('orientationchange', () => setTimeout(scaleGame, 200));
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new MutationObserver(() => scaleGame());
+            setTimeout(() => {
+                const c = document.getElementById('game-container');
+                if (c) observer.observe(c, { attributes: true, attributeFilter: ['class'] });
+                scaleGame();
+            }, 100);
+            // Prevent context menu and selection on touch
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('selectstart', e => e.preventDefault());
+        });
+    </script>
+</head>
+<body>
+    <!-- ГЛАВНОЕ МЕНЮ -->
+    <div id="main-menu">
+        <!-- Тёмный оверлей поверх фона -->
+        <div id="menu-overlay"></div>
+
+        <!-- Мигающий свет сверху -->
+        <div id="menu-flicker-light"></div>
+
+        <!-- Статические помехи (scanlines) -->
+        <div id="menu-scanlines"></div>
+
+        <!-- Случайные вспышки статики -->
+        <div id="menu-static"></div>
+
+        <!-- Силуэты аниматроников по бокам -->
+        <div id="menu-shadow-left" class="menu-anim-shadow"></div>
+        <div id="menu-shadow-right" class="menu-anim-shadow"></div>
+
+        <!-- Туман снизу -->
+        <div id="menu-fog"></div>
+
+        <div id="menu-bg-eyes">
+            <div class="bg-eye" id="bg-eye-1"></div>
+            <div class="bg-eye" id="bg-eye-2"></div>
+            <div class="bg-eye" id="bg-eye-3"></div>
+        </div>
+
+        <div id="menu-logo">
+            <div id="menu-logo-five">FIVE NIGHTS AT</div>
+            <h1 id="menu-title">FREDDY'S</h1>
+        </div>
+        <p id="menu-subtitle">Ночная смена. Выживи до 6 утра.<br>Следи за камерами. Защищайся от аниматроников.</p>
+        
+        <div id="menu-buttons">
+            <button class="menu-btn" id="new-game-btn">
+                <i class="fas fa-play"></i>
+                <span>НОВАЯ ИГРА</span>
+            </button>
+            <button class="menu-btn" id="continue-btn" style="display:none">
+                <i class="fas fa-forward"></i>
+                <span>ПРОДОЛЖИТЬ</span>
+            </button>
+            <button class="menu-btn" id="settings-btn">
+                <i class="fas fa-cog"></i>
+                <span>НАСТРОЙКИ</span>
+            </button>
+            <button class="menu-btn" id="audio-toggle">
+                <i class="fas fa-volume-up"></i>
+                <span>ЗВУК ВКЛ</span>
+            </button>
+            <button class="menu-btn menu-btn-cheat hidden" id="cheats-btn">
+                <i class="fas fa-star"></i>
+                <span>ЧИТЫ</span>
+            </button>
+        </div>
+        
+        <div id="menu-footer">
+            <p id="menu-footer-text">Ночная смена ожидает... Сможете ли вы пережить 7 ночей?</p>
+            <div id="menu-records"></div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН ВЫБОРА НОЧИ -->
+    <div id="night-select-screen" class="hidden">
+        <h2 id="night-select-title">ВЫБОР НОЧИ</h2>
+        <p id="night-select-subtitle">Выберите с какой ночи начать. Чем выше — тем опаснее.</p>
+        <div id="night-select-grid">
+            <!-- Ночи генерируются JS -->
+        </div>
+        <button class="menu-btn" id="night-select-back">
+            <i class="fas fa-arrow-left"></i>
+            <span>НАЗАД</span>
+        </button>
+    </div>
+
+    <!-- ЭКРАН ЧИТОВ (разблокируется после 7 ночи) -->
+    <div id="cheats-screen" class="hidden">
+        <div id="cheats-overlay-bg"></div>
+        <div id="cheats-container">
+            <div id="cheats-header">
+                <div id="cheats-title">
+                    <i class="fas fa-star"></i>
+                    РЕЖИМ ЧИТОВ
+                </div>
+                <div id="cheats-subtitle">Разблокировано за прохождение всех 7 ночей</div>
+            </div>
+
+            <div id="cheats-grid">
+
+                <div class="cheat-card" id="cheat-infinite-power">
+                    <div class="cheat-icon">⚡</div>
+                    <div class="cheat-name">БЕСКОНЕЧНАЯ ЭНЕРГИЯ</div>
+                    <div class="cheat-desc">Энергия не расходуется. Держи двери и камеры сколько угодно.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-infinite-power-cb" class="cheat-cb">
+                        <label for="cheat-infinite-power-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-slow-animatronics">
+                    <div class="cheat-icon">🐌</div>
+                    <div class="cheat-name">ЗАМЕДЛЕННЫЕ АНИМАТРОНИКИ</div>
+                    <div class="cheat-desc">Все AI-уровни снижены до 1. Они едва двигаются.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-slow-animatronics-cb" class="cheat-cb">
+                        <label for="cheat-slow-animatronics-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-see-all">
+                    <div class="cheat-icon">👁</div>
+                    <div class="cheat-name">ВСЕВИДЯЩЕЕ ОКО</div>
+                    <div class="cheat-desc">Местоположение всех аниматроников всегда видно на карте, даже без открытых камер.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-see-all-cb" class="cheat-cb">
+                        <label for="cheat-see-all-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-max-speed">
+                    <div class="cheat-icon">💀</div>
+                    <div class="cheat-name">УЛЬТРА ХАРДКОР</div>
+                    <div class="cheat-desc">Все AI-уровни на максимуме (20). Только для мазохистов.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-max-speed-cb" class="cheat-cb">
+                        <label for="cheat-max-speed-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-auto-doors">
+                    <div class="cheat-icon">🚪</div>
+                    <div class="cheat-name">АВТО-ДВЕРИ</div>
+                    <div class="cheat-desc">Двери автоматически закрываются когда аниматроник подходит к ним.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-auto-doors-cb" class="cheat-cb">
+                        <label for="cheat-auto-doors-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-fast-night">
+                    <div class="cheat-icon">⏩</div>
+                    <div class="cheat-name">БЫСТРАЯ НОЧЬ</div>
+                    <div class="cheat-desc">Ночь длится в 3 раза быстрее. 6 AM наступает за 2 минуты.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-fast-night-cb" class="cheat-cb">
+                        <label for="cheat-fast-night-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-ghost-mode">
+                    <div class="cheat-icon">👻</div>
+                    <div class="cheat-name">РЕЖИМ ПРИЗРАКА</div>
+                    <div class="cheat-desc">Аниматроники не атакуют. Можно исследовать игру без страха смерти.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-ghost-mode-cb" class="cheat-cb">
+                        <label for="cheat-ghost-mode-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-golden-freddy">
+                    <div class="cheat-icon">✨</div>
+                    <div class="cheat-name">ЗОЛОТОЙ ФРЕДДИ ВСЕГДА</div>
+                    <div class="cheat-desc">Золотой Фредди появляется каждые 30 секунд. Испытай нервы.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-golden-freddy-cb" class="cheat-cb">
+                        <label for="cheat-golden-freddy-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="cheat-card" id="cheat-show-hints">
+                    <div class="cheat-icon">💡</div>
+                    <div class="cheat-name">ПОДСКАЗКИ</div>
+                    <div class="cheat-desc">Уведомления о действиях аниматроников: заблокирован, отступил, Фокси заметил.</div>
+                    <div class="cheat-toggle">
+                        <input type="checkbox" id="cheat-show-hints-cb" class="cheat-cb">
+                        <label for="cheat-show-hints-cb" class="cheat-toggle-label"></label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Выбор ночи для запуска с читами -->
+            <div id="cheats-night-select">
+                <div id="cheats-night-label">ВЫБРАТЬ НОЧЬ:</div>
+                <div id="cheats-night-btns">
+                    <button class="cheat-night-btn active" data-night="1">1</button>
+                    <button class="cheat-night-btn" data-night="2">2</button>
+                    <button class="cheat-night-btn" data-night="3">3</button>
+                    <button class="cheat-night-btn" data-night="4">4</button>
+                    <button class="cheat-night-btn" data-night="5">5</button>
+                    <button class="cheat-night-btn" data-night="6">6</button>
+                    <button class="cheat-night-btn" data-night="7">7</button>
+                    <button class="cheat-night-btn cheat-night-custom" data-night="custom">★ CUSTOM</button>
+                </div>
+            </div>
+
+            <div id="cheats-footer">
+                <div id="cheats-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Прогресс и рекорды с читами не сохраняются
+                </div>
+                <button class="menu-btn" id="cheats-play-btn">
+                    <i class="fas fa-play"></i>
+                    <span>ИГРАТЬ</span>
+                </button>
+                <button class="menu-btn" id="cheats-back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>НАЗАД</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- КАСТОМНАЯ НОЧЬ -->
+    <div id="custom-night-screen" class="hidden">
+        <div id="custom-night-bg"></div>
+        <div id="custom-night-container">
+            <div id="custom-night-header">
+                <div id="custom-night-title">
+                    <i class="fas fa-sliders-h"></i>
+                    КАСТОМНАЯ НОЧЬ
+                </div>
+                <div id="custom-night-subtitle">Настрой AI каждого аниматроника от 0 до 20</div>
+            </div>
+
+            <div id="custom-night-sliders">
+
+                <div class="cn-anim-row" id="cn-freddy-row">
+                    <div class="cn-anim-portrait">
+                        <img src="textures/animatronics/freddy_idle.png" alt="Freddy">
+                    </div>
+                    <div class="cn-anim-info">
+                        <div class="cn-anim-name freddy-color">ФРЕДДИ</div>
+                        <div class="cn-anim-desc">Медленный, но неотвратимый. Движется в темноте.</div>
+                    </div>
+                    <div class="cn-slider-wrap">
+                        <div class="cn-presets">
+                            <button class="cn-preset" data-anim="freddy" data-val="0">OFF</button>
+                            <button class="cn-preset" data-anim="freddy" data-val="5">СЛАБЫЙ</button>
+                            <button class="cn-preset" data-anim="freddy" data-val="10">СРЕДНИЙ</button>
+                            <button class="cn-preset" data-anim="freddy" data-val="20">МАКС</button>
+                        </div>
+                        <input type="range" class="cn-slider" id="cn-freddy" min="0" max="20" value="0">
+                        <div class="cn-val-display"><span id="cn-freddy-val">0</span></div>
+                    </div>
+                </div>
+
+                <div class="cn-anim-row" id="cn-bonnie-row">
+                    <div class="cn-anim-portrait">
+                        <img src="textures/animatronics/bonnie_idle.png" alt="Bonnie">
+                    </div>
+                    <div class="cn-anim-info">
+                        <div class="cn-anim-name bonnie-color">БОННИ</div>
+                        <div class="cn-anim-desc">Первым приходит слева. Быстрый и агрессивный.</div>
+                    </div>
+                    <div class="cn-slider-wrap">
+                        <div class="cn-presets">
+                            <button class="cn-preset" data-anim="bonnie" data-val="0">OFF</button>
+                            <button class="cn-preset" data-anim="bonnie" data-val="5">СЛАБЫЙ</button>
+                            <button class="cn-preset" data-anim="bonnie" data-val="10">СРЕДНИЙ</button>
+                            <button class="cn-preset" data-anim="bonnie" data-val="20">МАКС</button>
+                        </div>
+                        <input type="range" class="cn-slider" id="cn-bonnie" min="0" max="20" value="0">
+                        <div class="cn-val-display"><span id="cn-bonnie-val">0</span></div>
+                    </div>
+                </div>
+
+                <div class="cn-anim-row" id="cn-chica-row">
+                    <div class="cn-anim-portrait">
+                        <img src="textures/animatronics/chica_idle.png" alt="Chica">
+                    </div>
+                    <div class="cn-anim-info">
+                        <div class="cn-anim-name chica-color">ЧИКА</div>
+                        <div class="cn-anim-desc">Заходит справа через кухню. Тихая угроза.</div>
+                    </div>
+                    <div class="cn-slider-wrap">
+                        <div class="cn-presets">
+                            <button class="cn-preset" data-anim="chica" data-val="0">OFF</button>
+                            <button class="cn-preset" data-anim="chica" data-val="5">СЛАБЫЙ</button>
+                            <button class="cn-preset" data-anim="chica" data-val="10">СРЕДНИЙ</button>
+                            <button class="cn-preset" data-anim="chica" data-val="20">МАКС</button>
+                        </div>
+                        <input type="range" class="cn-slider" id="cn-chica" min="0" max="20" value="0">
+                        <div class="cn-val-display"><span id="cn-chica-val">0</span></div>
+                    </div>
+                </div>
+
+                <div class="cn-anim-row" id="cn-foxy-row">
+                    <div class="cn-anim-portrait">
+                        <img src="textures/animatronics/foxy_idle.png" alt="Foxy">
+                    </div>
+                    <div class="cn-anim-info">
+                        <div class="cn-anim-name foxy-color">ФОКСИ</div>
+                        <div class="cn-anim-desc">Прячется в бухте. Бежит если не смотришь.</div>
+                    </div>
+                    <div class="cn-slider-wrap">
+                        <div class="cn-presets">
+                            <button class="cn-preset" data-anim="foxy" data-val="0">OFF</button>
+                            <button class="cn-preset" data-anim="foxy" data-val="5">СЛАБЫЙ</button>
+                            <button class="cn-preset" data-anim="foxy" data-val="10">СРЕДНИЙ</button>
+                            <button class="cn-preset" data-anim="foxy" data-val="20">МАКС</button>
+                        </div>
+                        <input type="range" class="cn-slider" id="cn-foxy" min="0" max="20" value="0">
+                        <div class="cn-val-display"><span id="cn-foxy-val">0</span></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Быстрые пресеты всей ночи -->
+            <div id="cn-global-presets">
+                <div id="cn-global-label">БЫСТРЫЕ ПРЕСЕТЫ:</div>
+                <button class="cn-global-btn" id="cn-preset-all0">ВСЕ 0</button>
+                <button class="cn-global-btn" id="cn-preset-allmax">ВСЕ 20</button>
+                <button class="cn-global-btn" id="cn-preset-night7">КАК НОЧЬ 7</button>
+                <button class="cn-global-btn" id="cn-preset-random">СЛУЧАЙНО</button>
+            </div>
+
+            <div id="cn-footer">
+                <div id="cn-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Рекорды кастомной ночи не сохраняются
+                </div>
+                <button class="menu-btn" id="cn-play-btn">
+                    <i class="fas fa-play"></i>
+                    <span>НАЧАТЬ НОЧЬ</span>
+                </button>
+                <button class="menu-btn" id="cn-back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>НАЗАД</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
+    <!-- НАСТРОЙКИ (новый дизайн) -->
+<div id="settings-overlay" class="hidden">
+        <div id="settings-modal">
+
+            <div id="settings-header">
+                <div id="settings-header-left">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>НАСТРОЙКИ</span>
+                </div>
+                <button id="settings-close-x" title="Закрыть без сохранения"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="settings-tabs">
+                <button class="stab active" data-tab="audio"><i class="fas fa-volume-up"></i><span>АУДИО</span></button>
+                <button class="stab" data-tab="gameplay"><i class="fas fa-skull"></i><span>ИГРА</span></button>
+                <button class="stab" data-tab="graphics"><i class="fas fa-tv"></i><span>ГРАФИКА</span></button>
+                <button class="stab" data-tab="controls"><i class="fas fa-keyboard"></i><span>УПРАВЛЕНИЕ</span></button>
+                <button class="stab" data-tab="about"><i class="fas fa-info-circle"></i><span>О ИГРЕ</span></button>
+            </div>
+
+            <div id="settings-body">
+
+                <!-- АУДИО -->
+                <div class="stab-panel active" id="stab-audio">
+                    <div class="s-section-label">Мастер громкость</div>
+                    <div class="s-master-vol">
+                        <span class="svol-icon" id="vol-icon">🔊</span>
+                        <input type="range" id="volume-slider" class="s-slider s-slider-master" min="0" max="100" value="70">
+                        <span class="sval" id="volume-value">70%</span>
+                    </div>
+
+                    <div class="s-section-label">Каналы</div>
+                    <div class="s-channels">
+                        <div class="s-channel">
+                            <span class="s-channel-icon">👻</span>
+                            <span class="s-channel-name">Атмосфера</span>
+                            <input type="range" id="vol-atmosphere" class="s-slider s-slider-ch" min="0" max="100" value="50">
+                            <span class="sval s-channel-val" id="vol-atmosphere-val">50%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">🎵</span>
+                            <span class="s-channel-name">Музыка меню</span>
+                            <input type="range" id="vol-menu" class="s-slider s-slider-ch" min="0" max="100" value="55">
+                            <span class="sval s-channel-val" id="vol-menu-val">55%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">⚡</span>
+                            <span class="s-channel-name">Эффекты (SFX)</span>
+                            <input type="range" id="vol-sfx" class="s-slider s-slider-ch" min="0" max="100" value="100">
+                            <span class="sval s-channel-val" id="vol-sfx-val">100%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">💀</span>
+                            <span class="s-channel-name">Джамп-скер</span>
+                            <input type="range" id="vol-jumpscare" class="s-slider s-slider-ch" min="0" max="100" value="100">
+                            <span class="sval s-channel-val" id="vol-jumpscare-val">100%</span>
+                        </div>
+                    </div>
+
+                    <div class="s-section-label">Параметры</div>
+                    <div class="s-toggles-grid">
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-phone"></i><span>Тел. звонок</span><em>Ночь 1</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-phonecall" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-paw"></i><span>Пение Фокси</span><em>Пираты</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-foxy-song" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-utensils"></i><span>Шум кухни</span><em>Фон</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-kitchen-noise" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-volume-mute"></i><span>Полный мут</span></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-mute"><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ИГРА -->
+                <div class="stab-panel" id="stab-gameplay">
+                    <div class="s-section-label">Сложность AI</div>
+                    <div class="sdiff-grid">
+                        <label class="sdiff-card" data-val="easy">
+                            <input type="radio" name="difficulty" value="easy">
+                            <div class="sdiff-icon">🟢</div>
+                            <div class="sdiff-name">ЛЁГКИЙ</div>
+                            <div class="sdiff-desc">AI ×0.5</div>
+                        </label>
+                        <label class="sdiff-card" data-val="normal">
+                            <input type="radio" name="difficulty" value="normal" checked>
+                            <div class="sdiff-icon">🟡</div>
+                            <div class="sdiff-name">НОРМАЛЬНЫЙ</div>
+                            <div class="sdiff-desc">AI ×1.0</div>
+                        </label>
+                        <label class="sdiff-card" data-val="hard">
+                            <input type="radio" name="difficulty" value="hard">
+                            <div class="sdiff-icon">🔴</div>
+                            <div class="sdiff-name">ХАРДКОР</div>
+                            <div class="sdiff-desc">AI ×1.8</div>
+                        </label>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:14px">Визуальные эффекты</div>
+                    <div class="s-toggles-grid">
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-grip-lines"></i><span>Скан-линии</span></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-scanlines" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-expand-arrows-alt"></i><span>Тряска экрана</span></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-screenshake" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ГРАФИКА -->
+                <div class="stab-panel" id="stab-graphics">
+                    <div class="s-section-label">Пресет качества</div>
+                    <div class="gfx-preset-grid">
+                        <label class="gfx-preset-card" data-val="low">
+                            <input type="radio" name="gfx-quality" value="low">
+                            <div class="gfx-preset-icon">🟤</div>
+                            <div class="gfx-preset-name">НИЗКОЕ</div>
+                            <div class="gfx-preset-desc">Без эффектов. Макс. FPS</div>
+                        </label>
+                        <label class="gfx-preset-card" data-val="medium">
+                            <input type="radio" name="gfx-quality" value="medium" checked>
+                            <div class="gfx-preset-icon">🟡</div>
+                            <div class="gfx-preset-name">СРЕДНЕЕ</div>
+                            <div class="gfx-preset-desc">Баланс. Рекомендуется</div>
+                        </label>
+                        <label class="gfx-preset-card" data-val="high">
+                            <input type="radio" name="gfx-quality" value="high">
+                            <div class="gfx-preset-icon">🟢</div>
+                            <div class="gfx-preset-name">ВЫСОКОЕ</div>
+                            <div class="gfx-preset-desc">Все эффекты включены</div>
+                        </label>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:14px">Эффекты</div>
+                    <div class="s-toggles-grid">
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-circle-notch"></i><span>Виньетирование</span><em>Атмосфера</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-vignette" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-adjust"></i><span>Хром. аберрация</span><em>Хоррор</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-chromatic" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-film"></i><span>Зернистость</span><em>Ретро</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-grain" checked><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                        <div class="s-trow">
+                            <div class="s-trow-left"><i class="fas fa-moon"></i><span>Дин. тени</span><em>Только HIGH</em></div>
+                            <label class="s-toggle"><input type="checkbox" id="toggle-shadows"><span class="s-toggle-track"><span class="s-toggle-thumb"></span></span></label>
+                        </div>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:14px">Изображение</div>
+                    <div class="s-channels">
+                        <div class="s-channel">
+                            <span class="s-channel-icon">☀️</span>
+                            <span class="s-channel-name">Яркость</span>
+                            <input type="range" id="brightness-slider" class="s-slider s-slider-ch" min="60" max="140" value="100">
+                            <span class="sval s-channel-val" id="brightness-value">100%</span>
+                        </div>
+                        <div class="s-channel">
+                            <span class="s-channel-icon">🌗</span>
+                            <span class="s-channel-name">Контрастность</span>
+                            <input type="range" id="contrast-slider" class="s-slider s-slider-ch" min="60" max="150" value="110">
+                            <span class="sval s-channel-val" id="contrast-value">110%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- УПРАВЛЕНИЕ -->
+                <div class="stab-panel" id="stab-controls">
+                    <div class="s-section-label">Основные действия</div>
+                    <div class="ctrl-grid">
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-video"></i><span class="ctrl-name">Камеры</span><span class="ctrl-desc">Открыть / закрыть</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="camera">C</kbd><button class="ctrl-rebind-btn" data-action="camera"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-door-closed"></i><span class="ctrl-name">Левая дверь</span><span class="ctrl-desc">Закрыть / открыть</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="leftDoor">A</kbd><button class="ctrl-rebind-btn" data-action="leftDoor"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-door-closed"></i><span class="ctrl-name">Правая дверь</span><span class="ctrl-desc">Закрыть / открыть</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="rightDoor">D</kbd><button class="ctrl-rebind-btn" data-action="rightDoor"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-lightbulb"></i><span class="ctrl-name">Левый фонарь</span><span class="ctrl-desc">Бонни (слева)</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="leftFlash">F</kbd><button class="ctrl-rebind-btn" data-action="leftFlash"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row"><div class="ctrl-info"><i class="fas fa-lightbulb"></i><span class="ctrl-name">Правый фонарь</span><span class="ctrl-desc">Чика / Фредди (справа)</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key" data-key="rightFlash">G</kbd><button class="ctrl-rebind-btn" data-action="rightFlash"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-fixed"><div class="ctrl-info"><i class="fas fa-times"></i><span class="ctrl-name">Закрыть / Пропустить</span><span class="ctrl-desc">Камеры · Телефон</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-wide">ESC / Enter</kbd></div></div>
+                    </div>
+
+                    <div class="s-section-label" style="margin-top:12px">Быстрый выбор камер</div>
+                    <div class="ctrl-grid ctrl-grid-cams">
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 1A</span><span class="ctrl-desc">Сцена</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_stage">1</kbd><button class="ctrl-rebind-btn" data-action="cam_stage"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 1B</span><span class="ctrl-desc">West Hall</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_west-hall">2</kbd><button class="ctrl-rebind-btn" data-action="cam_west-hall"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 1C</span><span class="ctrl-desc">Туалеты</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_bathroom">3</kbd><button class="ctrl-rebind-btn" data-action="cam_bathroom"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 2A</span><span class="ctrl-desc">Зал</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_dining">4</kbd><button class="ctrl-rebind-btn" data-action="cam_dining"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 2B</span><span class="ctrl-desc">Склад</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_supply">5</kbd><button class="ctrl-rebind-btn" data-action="cam_supply"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 2C</span><span class="ctrl-desc">Кухня</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_kitchen">6</kbd><button class="ctrl-rebind-btn" data-action="cam_kitchen"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 3A</span><span class="ctrl-desc">П. Бухта</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_parts">7</kbd><button class="ctrl-rebind-btn" data-action="cam_parts"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 3B</span><span class="ctrl-desc">East Hall</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_east-hall">8</kbd><button class="ctrl-rebind-btn" data-action="cam_east-hall"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 4A</span><span class="ctrl-desc">Коридор</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_hall">9</kbd><button class="ctrl-rebind-btn" data-action="cam_hall"><i class="fas fa-pen"></i></button></div></div>
+                        <div class="ctrl-row ctrl-row-compact"><div class="ctrl-info"><span class="ctrl-cam-label">CAM 3C</span><span class="ctrl-desc">Закулисье</span></div><div class="ctrl-bind-wrap"><kbd class="ctrl-key ctrl-key-sm" data-key="cam_backstage">0</kbd><button class="ctrl-rebind-btn" data-action="cam_backstage"><i class="fas fa-pen"></i></button></div></div>
+                    </div>
+                    <button class="ctrl-reset-btn" id="ctrl-reset-btn"><i class="fas fa-undo"></i> Сбросить привязки</button>
+
+                    <!-- Оверлей перехвата -->
+                    <div id="ctrl-capture-overlay" class="hidden">
+                        <div id="ctrl-capture-box">
+                            <div id="ctrl-capture-icon"><i class="fas fa-keyboard"></i></div>
+                            <div id="ctrl-capture-title">НАЖМИТЕ КЛАВИШУ</div>
+                            <div id="ctrl-capture-sub">для: <span id="ctrl-capture-action-name"></span></div>
+                            <div id="ctrl-capture-hint">ESC — отмена</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- О ИГРЕ -->
+                <div class="stab-panel" id="stab-about">
+                    <div class="about-hero">
+                        <div class="about-logo-text">FIVE NIGHTS AT FREDDY'S</div>
+                        <div class="about-tagline">Ночная смена. Выживи до 6 утра.</div>
+                    </div>
+                    <div class="about-desc">
+                        <p>Вы устроились ночным охранником в пиццерию «Freddy Fazbear's Pizza». После полуночи аниматроники оживают. Следите за камерами, закрывайте двери, экономьте энергию — продержитесь до 6 утра.</p>
+                        <p>Семь ночей. Четыре аниматроника. Один выживший.</p>
+                    </div>
+                    <div class="about-divider"></div>
+                    <div class="about-dev-block">
+                        <div class="about-dev-avatar">Р</div>
+                        <div class="about-dev-info">
+                            <div class="about-dev-label">РАЗРАБОТЧИК</div>
+                            <div class="about-dev-name">Романуша Д.С.</div>
+                            <div class="about-dev-role">Дизайн · Программирование · Геймдизайн</div>
+                        </div>
+                    </div>
+                    <div class="about-divider"></div>
+                    <div class="about-credits">
+                        <div class="about-credits-title">БЛАГОДАРНОСТИ</div>
+                        <div class="about-credits-list"><span>Scott Cawthon</span> — оригинальная серия FNAF</div>
+                    </div>
+                    <div class="about-version">v1.0 · 2026</div>
+                </div>
+
+            </div><!-- /settings-body -->
+
+            <div id="settings-footer">
+                <button class="s-btn s-btn-cancel" id="settings-reset"><i class="fas fa-undo"></i> СБРОС</button>
+                <button class="s-btn s-btn-save" id="settings-close"><i class="fas fa-check"></i> СОХРАНИТЬ</button>
+            </div>
+
+        </div>
+    </div>
+
+        <!-- ДИАЛОГ ПОДТВЕРЖДЕНИЯ ВЫХОДА В МЕНЮ -->
+    <div id="confirm-exit-overlay" class="hidden">
+        <div id="confirm-exit-modal">
+            <div id="confirm-exit-icon">⚠️</div>
+            <div id="confirm-exit-title">ВЫЙТИ В МЕНЮ?</div>
+            <div id="confirm-exit-sub">Прогресс текущей ночи будет потерян</div>
+            <div id="confirm-exit-btns">
+                <button class="s-btn s-btn-cancel" id="confirm-exit-no">
+                    <i class="fas fa-arrow-left"></i> ПРОДОЛЖИТЬ
+                </button>
+                <button class="s-btn s-btn-danger" id="confirm-exit-yes">
+                    <i class="fas fa-home"></i> В МЕНЮ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ТЕЛЕФОННЫЙ ЗВОНОК -->
+    <div id="phone-call-overlay" class="hidden">
+        <div id="phone-call-box">
+            <!-- Верхняя строка: иконка + имя + ночь -->
+            <div id="phone-header">
+                <div id="phone-avatar">
+                    <i class="fas fa-user-tie"></i>
+                    <span class="phone-signal-dot"></span>
+                </div>
+                <div id="phone-meta">
+                    <div id="phone-caller-name">МЕНЕДЖЕР — ПЕРВАЯ СМЕНА</div>
+                    <div id="phone-status-row">
+                        <span class="phone-live-badge">● В ЭФИРЕ</span>
+                        <span id="phone-night-badge">НОЧЬ 1</span>
+                    </div>
+                </div>
+                <button id="phone-skip-btn" title="Пропустить [ENTER]">
+                    <i class="fas fa-forward"></i>
+                </button>
+            </div>
+
+            <!-- Область текста с прокруткой -->
+            <div id="phone-text-wrap">
+                <div id="phone-text"></div>
+            </div>
+
+            <!-- Нижняя строка: иконка телефона + прогресс + время -->
+            <div id="phone-footer">
+                <i class="fas fa-phone-volume" id="phone-icon"></i>
+                <div id="phone-progress-bar">
+                    <div id="phone-progress-fill"></div>
+                    <div id="phone-progress-glow"></div>
+                </div>
+                <span id="phone-hint">ENTER — пропустить</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОСНОВНОЙ ИГРОВОЙ КОНТЕЙНЕР -->
+    <div id="game-container" class="hidden">
+        <!-- ШАПКА ИГРЫ -->
+        <div id="header">
+            <div id="game-title">
+                <span id="cheat-mode-badge" class="hidden">★ РЕЖИМ ЧИТОВ</span>
+            </div>
+            <!-- КНОПКА ВЫХОДА В МЕНЮ -->
+            <button id="exit-to-menu-btn" title="Выйти в главное меню">
+                <i class="fas fa-home"></i>
+                <span>МЕНЮ</span>
+            </button>
+            
+            <div id="game-time-container" style="display:none">
+                <!-- Перенесено в HUD -->
+                <span id="night-number-old" style="display:none">1</span>
+            </div>
+        </div>
+
+        <!-- ОСНОВНОЕ СОДЕРЖИМОЕ -->
+        <div id="game-content">
+
+            <!-- ЛЕВАЯ ПАНЕЛЬ (пустой спейсер — сохраняет layout) -->
+            <div id="control-panel"></div>
+
+                        <!-- ЦЕНТРАЛЬНЫЙ ВИД (ОФИС И КОМНАТЫ) -->
+            <div id="main-view">
+                <div class="static-overlay"></div>
+
+                <!-- HUD поверх экрана офиса -->
+                <!-- Аниматроники — видны только при чите seeAll -->
+                <div id="hud-animatronics">
+                    <div class="hud-anim-item" id="freddy-status">
+                        <span style="color:#e03030">Ф</span>
+                        <span class="animatronic-location">СЦЕНА</span>
+                        <span class="animatronic-ai" style="color:#555">AI:1</span>
+                    </div>
+                    <div class="hud-anim-item" id="bonnie-status">
+                        <span style="color:#3355ee">Б</span>
+                        <span class="animatronic-location">СЦЕНА</span>
+                        <span class="animatronic-ai" style="color:#555">AI:1</span>
+                    </div>
+                    <div class="hud-anim-item" id="chica-status">
+                        <span style="color:#ccaa00">Ч</span>
+                        <span class="animatronic-location">КУХНЯ</span>
+                        <span class="animatronic-ai" style="color:#555">AI:1</span>
+                    </div>
+                    <div class="hud-anim-item" id="foxy-status">
+                        <span style="color:#cc5522">ФО</span>
+                        <span class="animatronic-location">ПИРАТСКАЯ БУХТА</span>
+                        <span class="animatronic-ai" style="color:#555">AI:1</span>
+                    </div>
+                </div>
+
+                <div id="game-hud">
+                    <div id="hud-time">
+                        <span id="game-time">12:00 AM</span>
+                        <div id="hud-night-info">
+                            <span id="night-number">1</span> НОЧЬ &nbsp;|&nbsp;
+                            <span id="time-left">6:00</span> ДО 6AM
+                        </div>
+                        <div id="time-progress"><div id="time-progress-fill"></div></div>
+                    </div>
+                    <div id="hud-power">
+                        <div id="hud-power-row">
+                            <i class="fas fa-bolt"></i>
+                            <span id="power-value-hud">100%</span>
+                        </div>
+                        <div id="hud-power-bar"><div id="power-fill-hud"></div></div>
+                        <div id="hud-power-drain"><span id="power-usage-hud">0%/с</span></div>
+                    </div>
+                </div>
+
+                <!-- ПАНОРАМА ОФИСА -->
+                <div id="main-office">
+                    <!-- ФОН ОФИСА -->\n                    <div id="office-bg"></div>
+
+                    <!-- КЛИКАБЕЛЬНЫЕ МОНИТОРЫ -->
+                    <div id="office-monitors" title="Нажми чтобы открыть камеры">
+                        <div class="monitor-screen" id="monitor-left">
+                            <div class="monitor-content">
+                                <div class="monitor-label">CAM</div>
+                                <div class="monitor-icon"><i class="fas fa-map-marked-alt"></i></div>
+                                <div class="monitor-hint">КАРТА</div>
+                            </div>
+                            <div class="monitor-scanlines"></div>
+                            <div class="monitor-glow"></div>
+                        </div>
+                        <div class="monitor-screen" id="monitor-center">
+                            <div class="monitor-content">
+                                <div class="monitor-label">LIVE</div>
+                                <div class="monitor-icon"><i class="fas fa-video"></i></div>
+                                <div class="monitor-hint">НАЖМИ</div>
+                            </div>
+                            <div class="monitor-scanlines"></div>
+                            <div class="monitor-glow"></div>
+                        </div>
+                        <div class="monitor-screen" id="monitor-right">
+                            <div class="monitor-content">
+                                <div class="monitor-label">SYS</div>
+                                <div class="monitor-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                <div class="monitor-hint">СТАТУС</div>
+                            </div>
+                            <div class="monitor-scanlines"></div>
+                            <div class="monitor-glow"></div>
+                        </div>
+                    </div>
+
+                    <!-- ДВЕРИ -->
+                    <div id="left-door-overlay" class="door-overlay">
+                        <div id="left-door-peep" class="door-peep"></div>
+                        <div id="left-door-anim-view" class="door-anim-view"></div>
+                    </div>
+                    <div id="right-door-overlay" class="door-overlay">
+                        <div id="right-door-peep" class="door-peep"></div>
+                        <div id="right-door-anim-view" class="door-anim-view"></div>
+                    </div>
+
+                    <!-- КНОПКИ — прозрачные зоны поверх нарисованных кнопок -->
+
+                    <!-- Левая DOOR (красная кнопка) -->
+                    <button id="left-door-btn" class="office-hotspot" style="left:6.9%;top:43%;width:4.3%;height:9.8%">
+                        <div class="hotspot-glow red-glow" id="left-door-light"></div>
+                    </button>
+
+                    <!-- Левая LIGHT (зелёная кнопка) -->
+                    <button id="left-flash-btn" class="office-hotspot" style="left:6.9%;top:55.3%;width:4.3%;height:9.8%">
+                        <div class="hotspot-glow green-glow" id="left-flash-light"></div>
+                    </button>
+
+                    <!-- Правая DOOR (красная кнопка) -->
+                    <button id="right-door-btn" class="office-hotspot" style="left:92%;top:43%;width:4.6%;height:9.8%">
+                        <div class="hotspot-glow red-glow" id="right-door-light"></div>
+                    </button>
+
+                    <!-- Правая LIGHT (зелёная кнопка) -->
+                    <button id="right-flash-btn" class="office-hotspot" style="left:92%;top:55.3%;width:4.6%;height:9.8%">
+                        <div class="hotspot-glow green-glow" id="right-flash-light"></div>
+                    </button>
+
+                    <!-- МОНИТОР — кнопка камер поверх телевизора -->
+                    <div id="office-monitor-btn">
+                        <span class="monitor-pulse">▶ КАМЕРЫ</span>
+                    </div>
+
+                    <!-- АНИМАТРОНИКИ В ОФИСЕ -->
+                    <div class="enemy" id="enemy-bonnie"></div>
+                    <div class="enemy" id="enemy-foxy"></div>
+                    <div class="enemy" id="enemy-golden-freddy"></div>
+                    <div class="enemy" id="enemy-freddy"></div>
+                    <div class="enemy" id="enemy-chica"></div>
+
+                    <!-- ИНДИКАТОРЫ УГРОЗЫ -->
+                    <div id="door-left-indicator" class="door-indicator"></div>
+                    <div id="door-right-indicator" class="door-indicator"></div>
+
+
+
+                    <!-- ВЕНТИЛЯЦИЯ -->
+                    <div class="vent-door" id="vent-left">ЛЕВАЯ<br>ВЕНТИЛЯЦИЯ</div>
+                    <div class="vent-door" id="vent-right">ПРАВАЯ<br>ВЕНТИЛЯЦИЯ</div>
+                    <div id="vent-indicator-left" class="vent-indicator"></div>
+                    <div id="vent-indicator-right" class="vent-indicator"></div>
+                </div>
+
+                <!-- СТАРЫЙ room-office для совместимости (скрыт) -->
+                <div id="room-office" class="room-view" style="display:none!important;"></div>
+
+                <!-- ДРУГИЕ КОМНАТЫ (скрыты по умолчанию) -->
+                <div id="room-hall" class="room-view"></div>
+                <div id="room-kitchen" class="room-view"></div>
+                <div id="room-stage" class="room-view"></div>
+                <div id="room-parts" class="room-view"></div>
+                <div id="room-bathroom" class="room-view"></div>
+                
+                <!-- ЦЕНТРАЛЬНЫЕ КНОПКИ УПРАВЛЕНИЯ -->
+                <div id="central-controls" style="display:none">
+                    <!-- Старые кнопки скрыты — используются только стеновые кнопки в офисе -->
+                    <!-- door-btn-new с другими ID чтобы не дублировать wall-btn IDs -->
+                    <button class="door-btn-new" id="left-door-btn-old" style="display:none"></button>
+                    <button class="door-btn-new" id="right-door-btn-old" style="display:none"></button>
+                    <button id="left-flash-btn-old" style="display:none"></button>
+                    <button id="right-flash-btn-old" style="display:none"></button>
+                </div>
+
+                <!-- Скрытые элементы для совместимости со старым кодом -->
+                <button id="flashlight-btn" style="display:none"></button>
+                <span id="flashlight-status" style="display:none"></span>
+                
+                <!-- ЭКРАН ДЖАМПСКЕРА -->
+                <div id="jumpscare-overlay">
+                    <div id="jumpscare-image" class="jumpscare-image"></div>
+                </div>
+                
+                <!-- ЭКРАН КОНЦА ИГРЫ -->
+                <div id="game-over-screen">
+                    <div id="game-over-inner">
+                        <div id="game-over-icon"></div>
+                        <h1 id="game-over-title">ИГРА ОКОНЧЕНА</h1>
+                        <p id="death-reason" class="game-over-text"></p>
+                        <p id="night-progress" class="game-over-text"></p>
+                        <div id="game-over-stats">
+                            <div class="go-stat"><span>Переключений камер:</span><span id="go-stat-cams">0</span></div>
+                            <div class="go-stat"><span>Закрытий дверей:</span><span id="go-stat-doors">0</span></div>
+                            <div class="go-stat"><span>Угроз заблокировано:</span><span id="go-stat-threats">0</span></div>
+                            <div class="go-stat"><span>Уровни AI:</span><span id="go-stat-ai">—</span></div>
+                        </div>
+                        <div id="game-over-buttons">
+                            <button id="next-night-btn" class="menu-btn" style="display:none">
+                                <i class="fas fa-arrow-right"></i>
+                                <span>СЛЕДУЮЩАЯ НОЧЬ</span>
+                            </button>
+                            <button id="restart-btn" class="menu-btn">
+                                <i class="fas fa-home"></i>
+                                <span>В МЕНЮ</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ ПАНЕЛЬ СТАТУСА -->
+            <!-- Скрытые элементы для совместимости с JS -->
+            <button id="camera-system-btn" style="display:none"></button>
+            <span id="stats-time" style="display:none"></span>
+            <span id="stats-switches" style="display:none"></span>
+            <span id="stats-doors" style="display:none"></span>
+            <span id="stats-threats" style="display:none"></span>
+            <span id="left-door-status" style="display:none">ОТКРЫТА</span>
+            <span id="right-door-status" style="display:none">ОТКРЫТА</span>
+            <span id="power-value" style="display:none">100%</span>
+            <div id="power-fill" style="display:none"></div>
+            <span id="power-usage" style="display:none"></span>
+            <span id="power-time-left" style="display:none"></span>
+            <span id="camera-status-text" style="display:none"></span>
+            <span id="view-mode-text" style="display:none"></span>
+            <span id="camera-view-time" style="display:none">0с</span>
+            <span id="camera-system-status" style="display:none"></span>
+        </div>
+
+        <!-- ПАНЕЛЬ ИНФОРМАЦИИ -->
+        <div id="info-panel">
+            <div class="info-row">
+                <div class="key-help">
+                    <span class="key">C</span>
+                    <span>Камеры</span>
+                </div>
+                <div class="key-help">
+                    <span class="key">A</span>
+                    <span>Левая дверь</span>
+                </div>
+                <div class="key-help">
+                    <span class="key">D</span>
+                    <span>Правая дверь</span>
+                </div>
+                <div class="key-help">
+                    <span class="key">F</span>
+                    <span>Фонарик</span>
+                </div>
+                <div class="key-help">
+                    <span class="key">ESC</span>
+                    <span>Закрыть камеры</span>
+                </div>
+                <div class="key-help">
+                    <span class="key">1-6</span>
+                    <span>Переключение камер</span>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <span>Энергия ограничена! Управляйте расходом энергии. Ночь длится с 12:00 до 6:00 AM.</span>
+            </div>
+        </div>
+
+        <!-- КОНТРОЛЬ АУДИО перенесён в меню -->
+
+        <!-- МОДАЛЬНОЕ ОКНО СИСТЕМЫ КАМЕР -->
+    <div id="camera-modal-overlay">
+        <div id="camera-modal">
+            <div id="camera-modal-header">
+                <div id="camera-modal-title">
+                    <span class="rec-badge">&#9679; REC</span>
+                    СИСТЕМА ВИДЕОНАБЛЮДЕНИЯ — FREDDY FAZBEAR'S PIZZA
+                </div>
+                <div id="camera-header-right">
+                    <div id="camera-power-warning">
+                        <i class="fas fa-bolt"></i>
+                        Расход: <span id="camera-power-drain">0.1%/сек</span>
+                    </div>
+                    <button id="close-camera-btn">
+                        <i class="fas fa-times"></i> ЗАКРЫТЬ [ESC]
+                    </button>
+                </div>
+            </div>
+
+            <div id="camera-modal-content">
+
+                <!-- LEFT: MAP PANEL -->
+                <div id="camera-map-panel">
+                    <div id="camera-map-label">▦ ПЛАН ЗДАНИЯ — КЛИКНИТЕ НА КОМНАТУ</div>
+
+                    <div id="camera-map-container">
+                        <svg id="pizzeria-map" viewBox="0 0 420 490" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="420" height="490" fill="#080808"/>
+
+                            <!-- STAGE -->
+                            <g class="map-room" data-room="stage" onclick="switchCameraInModal('stage')">
+                                <rect x="10" y="10" width="110" height="80" rx="3"/>
+                                <text x="65" y="46" class="room-label">СЦЕНА</text>
+                                <text x="65" y="63" class="room-cam">CAM 1A</text>
+                                <circle class="cam-dot" cx="100" cy="21" r="5"/>
+                            </g>
+                            <!-- DINING -->
+                            <g class="map-room" data-room="dining" onclick="switchCameraInModal('dining')">
+                                <rect x="130" y="10" width="160" height="80" rx="3"/>
+                                <text x="210" y="44" class="room-label">ОБЕДЕННЫЙ ЗАЛ</text>
+                                <text x="210" y="63" class="room-cam">CAM 2A</text>
+                                <circle class="cam-dot" cx="278" cy="21" r="5"/>
+                            </g>
+                            <!-- PIRATE BAY -->
+                            <g class="map-room" data-room="parts" onclick="switchCameraInModal('parts')">
+                                <rect x="300" y="10" width="110" height="80" rx="3"/>
+                                <text x="355" y="38" class="room-label">ПИРАТСКАЯ</text>
+                                <text x="355" y="54" class="room-label">БУХТА</text>
+                                <text x="355" y="72" class="room-cam">CAM 3A</text>
+                                <circle class="cam-dot" cx="390" cy="21" r="5"/>
+                            </g>
+
+                            <!-- WEST HALL (tall, left column) -->
+                            <g class="map-room map-corridor" data-room="west-hall" onclick="switchCameraInModal('west-hall')">
+                                <rect x="10" y="100" width="110" height="120" rx="3"/>
+                                <text x="65" y="152" class="room-label">WEST</text>
+                                <text x="65" y="168" class="room-label">HALL</text>
+                                <text x="65" y="185" class="room-cam">CAM 1B</text>
+                                <circle class="cam-dot" cx="100" cy="111" r="4"/>
+                            </g>
+                            <!-- SUPPLY -->
+                            <g class="map-room" data-room="supply" onclick="switchCameraInModal('supply')">
+                                <rect x="150" y="100" width="120" height="50" rx="3"/>
+                                <text x="210" y="120" class="room-label">СКЛАД</text>
+                                <text x="210" y="136" class="room-cam">CAM 2B</text>
+                                <circle class="cam-dot" cx="258" cy="110" r="4"/>
+                            </g>
+                            <!-- EAST HALL (tall, right column) -->
+                            <g class="map-room map-corridor" data-room="east-hall" onclick="switchCameraInModal('east-hall')">
+                                <rect x="300" y="100" width="110" height="120" rx="3"/>
+                                <text x="355" y="152" class="room-label">EAST</text>
+                                <text x="355" y="168" class="room-label">HALL</text>
+                                <text x="355" y="185" class="room-cam">CAM 3B</text>
+                                <circle class="cam-dot" cx="390" cy="111" r="4"/>
+                            </g>
+
+                            <!-- KITCHEN -->
+                            <g class="map-room" data-room="kitchen" onclick="switchCameraInModal('kitchen')">
+                                <rect x="150" y="160" width="120" height="60" rx="3"/>
+                                <text x="210" y="185" class="room-label">КУХНЯ</text>
+                                <text x="210" y="202" class="room-cam">CAM 2C</text>
+                                <circle class="cam-dot" cx="258" cy="170" r="4"/>
+                            </g>
+
+                            <!-- BATHROOM -->
+                            <g class="map-room" data-room="bathroom" onclick="switchCameraInModal('bathroom')">
+                                <rect x="10" y="230" width="110" height="56" rx="3"/>
+                                <text x="65" y="254" class="room-label">ТУАЛЕТЫ</text>
+                                <text x="65" y="272" class="room-cam">CAM 1C</text>
+                                <circle class="cam-dot" cx="100" cy="241" r="4"/>
+                            </g>
+                            <!-- BACKSTAGE -->
+                            <g class="map-room" data-room="backstage" onclick="switchCameraInModal('backstage')">
+                                <rect x="300" y="230" width="110" height="56" rx="3"/>
+                                <text x="355" y="254" class="room-label">ЗАКУЛИСЬЕ</text>
+                                <text x="355" y="272" class="room-cam">CAM 3C</text>
+                                <circle class="cam-dot" cx="390" cy="241" r="4"/>
+                            </g>
+
+                            <!-- MAIN HALL -->
+                            <g class="map-room" data-room="hall" onclick="switchCameraInModal('hall')">
+                                <rect x="10" y="296" width="400" height="64" rx="3"/>
+                                <text x="210" y="322" class="room-label">ГЛАВНЫЙ КОРИДОР</text>
+                                <text x="210" y="342" class="room-cam">CAM 4A</text>
+                                <circle class="cam-dot" cx="55" cy="307" r="5"/>
+                                <circle class="cam-dot" cx="372" cy="307" r="5"/>
+                            </g>
+
+                            <!-- OFFICE -->
+                            <g class="map-room map-office" data-room="office" onclick="switchCameraInModal('office')">
+                                <rect x="130" y="370" width="160" height="80" rx="3"/>
+                                <text x="210" y="403" class="room-label">ОФИС ОХРАНЫ</text>
+                                <text x="210" y="423" class="room-cam">CAM 4B</text>
+                                <circle class="cam-dot" cx="275" cy="381" r="5"/>
+                            </g>
+
+                            <!-- CONNECTORS -->
+                            <line x1="65" y1="90" x2="65" y2="100" class="map-connector"/>
+                            <line x1="210" y1="90" x2="210" y2="100" class="map-connector"/>
+                            <line x1="355" y1="90" x2="355" y2="100" class="map-connector"/>
+                            <line x1="210" y1="150" x2="210" y2="160" class="map-connector"/>
+                            <line x1="65" y1="220" x2="65" y2="230" class="map-connector"/>
+                            <line x1="355" y1="220" x2="355" y2="230" class="map-connector"/>
+                            <line x1="65" y1="286" x2="65" y2="296" class="map-connector"/>
+                            <line x1="355" y1="286" x2="355" y2="296" class="map-connector"/>
+                            <line x1="210" y1="286" x2="210" y2="296" class="map-connector" stroke-dasharray="3,3"/>
+                            <line x1="210" y1="360" x2="210" y2="370" class="map-connector"/>
+                            <line x1="120" y1="50" x2="130" y2="50" class="map-connector"/>
+                            <line x1="290" y1="50" x2="300" y2="50" class="map-connector"/>
+
+                            <!-- СЛЕДЫ ДВИЖЕНИЯ (линии) -->
+                            <line class="map-trail-line map-trail-freddy" id="map-trail-freddy" x1="0" y1="0" x2="0" y2="0"/>
+                            <line class="map-trail-line map-trail-bonnie" id="map-trail-bonnie" x1="0" y1="0" x2="0" y2="0"/>
+                            <line class="map-trail-line map-trail-chica"  id="map-trail-chica"  x1="0" y1="0" x2="0" y2="0"/>
+                            <line class="map-trail-line map-trail-foxy"   id="map-trail-foxy"   x1="0" y1="0" x2="0" y2="0"/>
+
+                            <!-- ANIMATRONIC DOTS -->
+                            <circle class="map-anim-dot freddy-dot" id="map-dot-freddy" cx="35" cy="50" r="8"/>
+                            <text class="map-anim-label" id="map-label-freddy" x="35" y="54">Ф</text>
+                            <circle class="map-anim-dot bonnie-dot" id="map-dot-bonnie" cx="55" cy="50" r="8"/>
+                            <text class="map-anim-label" id="map-label-bonnie" x="55" y="54">Б</text>
+                            <circle class="map-anim-dot chica-dot" id="map-dot-chica" cx="180" cy="50" r="8"/>
+                            <text class="map-anim-label" id="map-label-chica" x="180" y="54">Ч</text>
+                            <circle class="map-anim-dot foxy-dot" id="map-dot-foxy" cx="340" cy="50" r="8"/>
+                            <text class="map-anim-label" id="map-label-foxy" x="340" y="54">ФО</text>
+                        </svg>
+                    </div>
+
+                    <!-- COMPACT CAMERA BUTTONS -->
+                    <div id="camera-btn-list">
+                        <button class="camera-sidebar-btn active" data-room="stage">CAM 1A · СЦЕНА</button>
+                        <button class="camera-sidebar-btn" data-room="west-hall">CAM 1B · WEST HALL</button>
+                        <button class="camera-sidebar-btn" data-room="bathroom">CAM 1C · ТУАЛЕТЫ</button>
+                        <button class="camera-sidebar-btn" data-room="dining">CAM 2A · ЗАЛ</button>
+                        <button class="camera-sidebar-btn" data-room="supply">CAM 2B · СКЛАД</button>
+                        <button class="camera-sidebar-btn" data-room="kitchen">CAM 2C · КУХНЯ</button>
+                        <button class="camera-sidebar-btn" data-room="parts">CAM 3A · П.БУХТА</button>
+                        <button class="camera-sidebar-btn" data-room="east-hall">CAM 3B · EAST HALL</button>
+                        <button class="camera-sidebar-btn" data-room="backstage">CAM 3C · ЗАКУЛИСЬЕ</button>
+                        <button class="camera-sidebar-btn" data-room="hall">CAM 4A · КОРИДОР</button>
+                        <button class="camera-sidebar-btn" data-room="office">CAM 4B · ОФИС</button>
+                    </div>
+                </div>
+
+                <!-- RIGHT: CAMERA FEED -->
+                <div id="camera-view">
+                    <div class="camera-static-overlay"></div>
+                    <div id="camera-scanlines"></div>
+                    <div id="foxy-watch-indicator"></div>
+                    <div id="camera-feed-label">
+                        <span id="camera-feed-cam-id">CAM 1A</span>
+                        <span id="camera-feed-room-name">СЦЕНА</span>
+                    </div>
+                    <div id="camera-timestamp"></div>
+
+                    <div id="camera-stage" class="camera-room-view active" style="background-image:url('textures/rooms/stage.png');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-freddy-stage" data-anim="freddy"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-bonnie-stage" data-anim="bonnie"></div>
+                        <div id="camera-golden-freddy-marker" class="golden-freddy-cam-ghost hidden"></div>
+                    </div>
+
+                    <div id="camera-west-hall" class="camera-room-view" style="background-image:url('textures/rooms/west_hall_b.jpg');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-bonnie-west-hall" data-anim="bonnie"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-freddy-west-hall" data-anim="freddy"></div>
+                    </div>
+
+                    <div id="camera-bathroom" class="camera-room-view" style="background-image:url('textures/rooms/bathroom.png');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-freddy-bathroom" data-anim="freddy"></div>
+                    </div>
+
+                    <div id="camera-dining" class="camera-room-view" style="background-image:url('textures/rooms/dining.jpg');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-chica-dining" data-anim="chica"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-freddy-dining" data-anim="freddy"></div>
+                    </div>
+
+                    <div id="camera-supply" class="camera-room-view" style="background-image:url('textures/rooms/supply.jpg');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-chica-supply" data-anim="chica"></div>
+                    </div>
+
+                    <div id="camera-kitchen" class="camera-room-view" style="background-image:url('textures/rooms/kitchen.png');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-chica-kitchen" data-anim="chica"></div>
+                    </div>
+
+                    <div id="camera-parts" class="camera-room-view" style="background-image:url('textures/rooms/pirate_bay.jpg');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-foxy-parts" data-anim="foxy"></div>
+                    </div>
+
+                    <div id="camera-east-hall" class="camera-room-view" style="background-image:url('textures/rooms/east_hall_a.jpg');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-foxy-east-hall" data-anim="foxy"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-chica-east-hall" data-anim="chica"></div>
+                    </div>
+
+                    <div id="camera-backstage" class="camera-room-view" style="background-image:url('textures/rooms/parts.png');background-size:cover;background-position:center;filter:brightness(0.4) saturate(0.5)">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-foxy-backstage" data-anim="foxy"></div>
+                    </div>
+
+                    <div id="camera-hall" class="camera-room-view" style="background-image:url('textures/rooms/hall.png');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-freddy-hall" data-anim="freddy"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-bonnie-hall" data-anim="bonnie"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-chica-hall" data-anim="chica"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-foxy-hall" data-anim="foxy"></div>
+                    </div>
+
+                    <div id="camera-office" class="camera-room-view" style="background-image:url('textures/rooms/office.jpg');background-size:cover;background-position:center;">
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-freddy-office" data-anim="freddy"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-bonnie-office" data-anim="bonnie"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-chica-office" data-anim="chica"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-foxy-office" data-anim="foxy"></div>
+                        <div class="camera-marker-modal anim-img-marker" id="camera-modal-golden-office" data-anim="golden-freddy"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+        <!-- ТРЕВОЖНЫЙ ОВЕРЛЕЙ -->
+        <div id="danger-overlay" class="hidden"></div>
+
+        <!-- ПАНЕЛЬ УВЕДОМЛЕНИЙ (правый край) -->
+        <div id="notif-panel"></div>
+
+        <!-- Фонарики -->
+        <div id="flashlight-left-effect" class="flashlight-side-effect hidden"></div>
+        <div id="flashlight-right-effect" class="flashlight-side-effect hidden"></div>
+        <div id="flashlight-effect" class="hidden"></div>
+        <!-- Графические эффекты -->
+        <div id="gfx-vignette" class="gfx-overlay"></div>
+        <div id="gfx-chromatic" class="gfx-overlay gfx-hidden"></div>
+        <div id="gfx-grain" class="gfx-overlay gfx-hidden"></div>
+        <div id="gfx-shadows" class="gfx-overlay gfx-hidden"></div>
+
+    </div><!-- /game-container -->
+
+    <script src="textures_room.js"></script>
+    <script src="game_additions.js"></script>
+    <script src="game.js"></script>
+        <div id="alert-toast" class="hidden" style="display:none!important"><span id="alert-toast-text"></span></div>
+</body>
+</html>
