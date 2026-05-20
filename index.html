@@ -30,25 +30,32 @@
             const vw = window.innerWidth;
             const vh = window.innerHeight;
             const portrait = vh > vw;
-            let scale, offsetX, offsetY;
-            if (portrait) {
-                // Portrait: fit width, crop height
-                scale = vw / 1920;
-                offsetX = 0;
-                offsetY = (vh - 1080 * scale) / 2;
-            } else {
-                scale = Math.min(vw / 1920, vh / 1080);
-                offsetX = (vw - 1920 * scale) / 2;
-                offsetY = (vh - 1080 * scale) / 2;
+            const mobile = isMobile();
+            document.body.classList.toggle('mobile', mobile);
+            document.body.classList.toggle('portrait', portrait);
+            document.body.classList.toggle('portrait-mobile', mobile && portrait);
+
+            if (mobile && portrait) {
+                // Portrait mobile: CSS layout takes over, no JS scaling
+                container.style.transform = 'none';
+                container.style.position = 'fixed';
+                container.style.top = '0';
+                container.style.left = '0';
+                container.style.margin = '0';
+                container.style.width = '100vw';
+                container.style.height = '100dvh';
+                return;
             }
+            container.style.width = '';
+            container.style.height = '';
+            const scale = Math.min(vw / 1920, vh / 1080);
+            const offsetX = (vw - 1920 * scale) / 2;
+            const offsetY = (vh - 1080 * scale) / 2;
             container.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
             container.style.position = 'fixed';
             container.style.top = '0';
             container.style.left = '0';
             container.style.margin = '0';
-            // Tag mobile for CSS
-            document.body.classList.toggle('mobile', isMobile());
-            document.body.classList.toggle('portrait', portrait);
         }
         window.addEventListener('resize', scaleGame);
         window.addEventListener('orientationchange', () => setTimeout(scaleGame, 200));
@@ -1237,6 +1244,30 @@
         <div id="gfx-chromatic" class="gfx-overlay gfx-hidden"></div>
         <div id="gfx-grain" class="gfx-overlay gfx-hidden"></div>
         <div id="gfx-shadows" class="gfx-overlay gfx-hidden"></div>
+
+        <!-- МОБИЛЬНАЯ ПАНЕЛЬ УПРАВЛЕНИЯ (только portrait mobile) -->
+        <div id="mobile-controls-bar">
+            <button class="mob-btn mob-door-btn" id="mob-left-door-btn">
+                <span class="mob-btn-icon">🚪</span>
+                <span class="mob-btn-label">ЛЕВО</span>
+            </button>
+            <button class="mob-btn mob-flash-btn" id="mob-left-flash-btn">
+                <span class="mob-btn-icon">💡</span>
+                <span class="mob-btn-label">ФОНАРЬ</span>
+            </button>
+            <button class="mob-btn mob-cam-btn" id="mob-cam-btn">
+                <span class="mob-btn-icon">📷</span>
+                <span class="mob-btn-label">КАМЕРЫ</span>
+            </button>
+            <button class="mob-btn mob-flash-btn" id="mob-right-flash-btn">
+                <span class="mob-btn-icon">💡</span>
+                <span class="mob-btn-label">ФОНАРЬ</span>
+            </button>
+            <button class="mob-btn mob-door-btn" id="mob-right-door-btn">
+                <span class="mob-btn-icon">🚪</span>
+                <span class="mob-btn-label">ПРАВО</span>
+            </button>
+        </div>
 
     </div><!-- /game-container -->
 

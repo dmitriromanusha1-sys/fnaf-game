@@ -3169,6 +3169,309 @@ body.mobile {
     .stab span { display: inline; }
 }
 
+/* ═══════════════════════════════════════════════════
+   PORTRAIT MOBILE LAYOUT
+   Активируется классом body.portrait-mobile
+   (телефон держится вертикально)
+═══════════════════════════════════════════════════ */
+
+/* ── Сброс фиксированного размера 1920×1080 ── */
+body.portrait-mobile #game-container {
+    position: fixed !important;
+    top: 0; left: 0;
+    width: 100vw !important;
+    height: 100dvh !important;
+    transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ── Шапка — компактная ── */
+body.portrait-mobile #header {
+    height: 48px;
+    min-height: 48px;
+    padding: 0 10px;
+    flex-shrink: 0;
+}
+
+body.portrait-mobile #exit-to-menu-btn span { display: none; }
+body.portrait-mobile #exit-to-menu-btn { padding: 8px 12px; }
+
+/* ── Контент игры: колонка ── */
+body.portrait-mobile #game-content {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden;
+}
+
+/* Скрываем боковые панели */
+body.portrait-mobile #control-panel { display: none !important; }
+body.portrait-mobile #info-panel    { display: none !important; }
+
+/* ── Главный вид занимает всё свободное место ── */
+body.portrait-mobile #main-view {
+    flex: 1 !important;
+    width: 100% !important;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+    display: block !important;
+}
+
+/* Офис заполняет вид */
+body.portrait-mobile #main-office {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+/* Фон офиса на всю ширину */
+body.portrait-mobile #office-bg {
+    background-size: cover;
+    background-position: center;
+}
+
+/* Скрываем HUD аниматроников — нет места */
+body.portrait-mobile #hud-animatronics { display: none; }
+
+/* HUD компактнее */
+body.portrait-mobile #game-hud {
+    padding: 6px 10px;
+    gap: 6px;
+}
+
+body.portrait-mobile #hud-time #game-time { font-size: 16px; }
+body.portrait-mobile #hud-night-info      { font-size: 10px; }
+body.portrait-mobile #hud-power           { min-width: 80px; }
+body.portrait-mobile #power-value-hud     { font-size: 14px; }
+
+/* Кнопки-хотспоты в стенах — чуть больше для пальца */
+body.portrait-mobile .office-hotspot {
+    min-width: 48px;
+    min-height: 56px;
+}
+
+/* ── МОБИЛЬНАЯ ПАНЕЛЬ УПРАВЛЕНИЯ ── */
+#mobile-controls-bar {
+    display: none;
+}
+
+body.portrait-mobile #mobile-controls-bar {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    width: 100%;
+    height: 130px;
+    min-height: 130px;
+    max-height: 140px;
+    background: linear-gradient(to top, #040408 0%, #0a0a14 100%);
+    border-top: 1px solid #1a1a3a;
+    padding: 8px 6px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    gap: 5px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    z-index: 50;
+}
+
+.mob-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+    border-radius: 10px;
+    background: #0d0d1c;
+    color: #888;
+    font-family: 'Share Tech Mono', monospace;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: manipulation;
+    border: 2px solid #222240;
+    transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+    padding: 6px 4px;
+    box-sizing: border-box;
+}
+
+.mob-btn-icon {
+    font-size: 26px;
+    line-height: 1;
+    margin-bottom: 5px;
+    display: block;
+    pointer-events: none;
+}
+
+.mob-btn-label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    color: #666;
+    pointer-events: none;
+}
+
+/* Дверь */
+.mob-door-btn { border-color: #3a1515; color: #bb3333; }
+.mob-door-btn.active {
+    background: #1c0808;
+    border-color: #ff3333;
+    color: #ff4444;
+    box-shadow: 0 0 14px rgba(255,30,30,0.35), inset 0 0 8px rgba(255,0,0,0.1);
+}
+.mob-door-btn.active .mob-btn-label { color: #ff4444; }
+
+/* Фонарь */
+.mob-flash-btn { border-color: #153a15; color: #33bb33; }
+.mob-flash-btn.active {
+    background: #081c08;
+    border-color: #33ff33;
+    color: #44ff44;
+    box-shadow: 0 0 14px rgba(30,255,30,0.35), inset 0 0 8px rgba(0,255,0,0.1);
+}
+.mob-flash-btn.active .mob-btn-label { color: #44ff44; }
+
+/* Камеры */
+.mob-cam-btn {
+    flex: 1.3;
+    border-color: #152a3a;
+    color: #3388cc;
+}
+.mob-cam-btn.active {
+    background: #080d1c;
+    border-color: #3388ff;
+    color: #44aaff;
+    box-shadow: 0 0 14px rgba(30,100,255,0.35), inset 0 0 8px rgba(0,80,255,0.1);
+}
+.mob-cam-btn.active .mob-btn-label { color: #44aaff; }
+
+/* ── КАМЕРЫ В PORTRAIT ── */
+body.portrait-mobile #camera-modal-overlay {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+body.portrait-mobile #camera-modal {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+body.portrait-mobile #camera-modal-header {
+    padding: 8px 12px;
+    min-height: 0;
+    flex-shrink: 0;
+}
+
+body.portrait-mobile #camera-modal-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+/* Контент камер: колонка — сначала трансляция, потом карта */
+body.portrait-mobile #camera-modal-content {
+    flex-direction: column-reverse !important;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Трансляция камеры сверху (за счёт column-reverse — фактически снизу в DOM) */
+body.portrait-mobile #camera-view {
+    flex: 1;
+    min-height: 0;
+    width: 100% !important;
+    height: auto;
+    order: 2;
+}
+
+/* Карта + кнопки снизу */
+body.portrait-mobile #camera-map-panel {
+    width: 100% !important;
+    max-width: 100%;
+    border-right: none !important;
+    border-top: 1px solid #1a2a1a;
+    display: flex !important;
+    flex-direction: row !important;
+    height: 210px;
+    min-height: 210px;
+    max-height: 210px;
+    flex-shrink: 0;
+    overflow: hidden;
+    order: 1;
+}
+
+body.portrait-mobile #camera-map-label { display: none; }
+
+body.portrait-mobile #camera-map-container {
+    flex: 1;
+    min-width: 0;
+    padding: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.portrait-mobile #pizzeria-map {
+    width: 100%;
+    height: 100%;
+    max-height: 200px;
+}
+
+body.portrait-mobile #camera-btn-list {
+    width: 110px;
+    min-width: 110px;
+    height: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-left: 1px solid #1a2a1a;
+    padding: 4px 3px;
+    gap: 2px;
+    background: #070710;
+    grid-template-columns: unset;
+}
+
+body.portrait-mobile .camera-sidebar-btn {
+    font-size: 8px;
+    padding: 7px 4px;
+    letter-spacing: 0;
+    min-height: 30px;
+    flex-shrink: 0;
+}
+
+body.portrait-mobile #close-camera-btn {
+    padding: 10px 14px;
+    font-size: 10px;
+    min-height: 44px;
+}
+
+/* Индикатор слежки за Фокси — меньше */
+body.portrait-mobile #foxy-watch-indicator { font-size: 10px; }
+
+/* Дверной оверлей в portrait: чуть шире */
+body.portrait-mobile #left-door-overlay,
+body.portrait-mobile #right-door-overlay { width: 28%; }
+
+/* ── НИЖНИЙ ОТСТУП ДЛЯ БЕЗОПАСНОЙ ЗОНЫ (iOS) ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    body.portrait-mobile #mobile-controls-bar {
+        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    }
+}
+
 /* ─── ПЛАНШЕТЫ (601–900px) ─── */
 @media (min-width: 601px) and (max-width: 900px) {
     #menu-buttons {

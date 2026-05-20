@@ -505,6 +505,7 @@ function startNewGame() {
     gameContainer.classList.remove('hidden');
 
     stopMenuAmbience();
+    requestMobileFullscreen();
 
     if (typeof scaleGame === 'function') scaleGame();
 
@@ -1824,6 +1825,13 @@ function updateButtonStatus() {
     const monBtn = document.getElementById('office-monitor-btn');
     if (monBtn) monBtn.style.opacity = cameraActive ? '0' : '1';
 
+    // Мобильные кнопки
+    document.getElementById('mob-left-door-btn')?.classList.toggle('active', leftDoorClosed);
+    document.getElementById('mob-right-door-btn')?.classList.toggle('active', rightDoorClosed);
+    document.getElementById('mob-left-flash-btn')?.classList.toggle('active', leftFlashlightOn);
+    document.getElementById('mob-right-flash-btn')?.classList.toggle('active', rightFlashlightOn);
+    document.getElementById('mob-cam-btn')?.classList.toggle('active', cameraActive);
+
     updateFlashlightEffects();
 }
 
@@ -2678,4 +2686,60 @@ document.addEventListener('DOMContentLoaded', () => {
         if (k === (binds.rightFlash || 'g')) { rightFlashlightOn = false; updateButtonStatus(); }
     });
 
+    // ── МОБИЛЬНАЯ ПАНЕЛЬ УПРАВЛЕНИЯ ──
+    const mobLeftDoorBtn  = document.getElementById('mob-left-door-btn');
+    const mobRightDoorBtn = document.getElementById('mob-right-door-btn');
+    const mobLeftFlashBtn = document.getElementById('mob-left-flash-btn');
+    const mobRightFlashBtn= document.getElementById('mob-right-flash-btn');
+    const mobCamBtn       = document.getElementById('mob-cam-btn');
+
+    // Двери — клик
+    mobLeftDoorBtn?.addEventListener('click', () => leftDoorBtn.click());
+    mobRightDoorBtn?.addEventListener('click', () => rightDoorBtn.click());
+
+    // Камеры — клик
+    mobCamBtn?.addEventListener('click', () => {
+        if (!gameActive) return;
+        if (cameraActive) closeCameraSystem(); else openCameraSystem();
+    });
+
+    // Фонарики — удерживать (touchstart/touchend)
+    const _mlOn  = () => { if (!gameActive || powerLevel <= 0 || cameraActive) return; leftFlashlightOn  = true;  updateButtonStatus(); };
+    const _mlOff = () => { leftFlashlightOn  = false; updateButtonStatus(); };
+    const _mrOn  = () => { if (!gameActive || powerLevel <= 0 || cameraActive) return; rightFlashlightOn = true;  updateButtonStatus(); };
+    const _mrOff = () => { rightFlashlightOn = false; updateButtonStatus(); };
+
+    mobLeftFlashBtn?.addEventListener('mousedown',   _mlOn);
+    mobLeftFlashBtn?.addEventListener('mouseup',     _mlOff);
+    mobLeftFlashBtn?.addEventListener('mouseleave',  _mlOff);
+    mobLeftFlashBtn?.addEventListener('touchstart',  (e) => { e.preventDefault(); _mlOn();  }, { passive: false });
+    mobLeftFlashBtn?.addEventListener('touchend',    _mlOff);
+    mobLeftFlashBtn?.addEventListener('touchcancel', _mlOff);
+
+    mobRightFlashBtn?.addEventListener('mousedown',   _mrOn);
+    mobRightFlashBtn?.addEventListener('mouseup',     _mrOff);
+    mobRightFlashBtn?.addEventListener('mouseleave',  _mrOff);
+    mobRightFlashBtn?.addEventListener('touchstart',  (e) => { e.preventDefault(); _mrOn();  }, { passive: false });
+    mobRightFlashBtn?.addEventListener('touchend',    _mrOff);
+    mobRightFlashBtn?.addEventListener('touchcancel', _mrOff);
+
 });
+
+// ── ПОЛНОЭКРАННЫЙ РЕЖИМ И БЛОКИРОВКА ОРИЕНТАЦИИ (portrait) ──
+function requestMobileFullscreen() {
+    if (!('ontouchstart' in window)) return;
+    try {
+        const el = document.documentElement;
+        const fs = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
+        if (fs) fs.call(el).catch(() => {});
+    } catch (e) {}
+    try {
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('portrait').catch(() => {});
+        } else if (screen.lockOrientation) {
+            screen.lockOrientation('portrait-primary');
+        } else if (screen.mozLockOrientation) {
+            screen.mozLockOrientation('portrait-primary');
+        }
+    } catch (e) {}
+}
